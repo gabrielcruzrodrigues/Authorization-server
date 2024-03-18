@@ -1,17 +1,16 @@
-package br.com.gabrielrodrigues.authserver.config;
+package br.com.gabrielrodrigues.post.config;
 
 import org.springframework.web.filter.CorsFilter;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.Ordered;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import java.util.Collections;
 
 @Configuration
-public class corsConfig {
+public class CorsConfig {
 
     @Bean
     public FilterRegistrationBean<CorsFilter> corsFilterFilterRegistrationBean() {
@@ -26,7 +25,6 @@ public class corsConfig {
 
         FilterRegistrationBean<CorsFilter> bean = new FilterRegistrationBean<>();
         bean.setFilter(new CorsFilter(source));
-        bean.setOrder(Ordered.HIGHEST_PRECEDENCE);
 
         return bean;
     }

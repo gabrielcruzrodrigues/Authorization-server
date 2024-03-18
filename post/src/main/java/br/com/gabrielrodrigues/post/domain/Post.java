@@ -1,6 +1,5 @@
-package br.com.gabrielrodrigues.authserver.model;
+package br.com.gabrielrodrigues.post.domain;
 
-import br.com.gabrielrodrigues.authserver.model.enums.Type;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -10,23 +9,21 @@ import org.springframework.data.annotation.CreatedDate;
 
 import java.time.OffsetDateTime;
 
-@Entity
 @Table
+@Entity
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
 @Setter
-public class UserEntity {
+public class Post {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private String name;
-    @Column(unique = true)
-    private String email;
-    private String password;
-    @Enumerated(EnumType.STRING)
-    private Type type;
     @CreatedDate
     private OffsetDateTime createdAt;
+
+    private Long editorId;
+    private String title;
+    private String content;
 }
