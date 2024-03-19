@@ -1,7 +1,7 @@
 spring:
   datasource:
     username: postgres
-    url: jdbc:postgresql://localhost:5432/user?createDatabaseIfNotExist=true
+    url: jdbc:postgresql://localhost:5432/user
     password: 1234
   jpa:
     show-sql: 'true'
@@ -14,8 +14,3 @@ server:
 aw:
   auth:
     provider-uri: "http://localhost:8082"
-    jks:
-      keypass: 123456
-      storepass: 123456
-      alias: awblog
-      path: keystore/awblog.jks
