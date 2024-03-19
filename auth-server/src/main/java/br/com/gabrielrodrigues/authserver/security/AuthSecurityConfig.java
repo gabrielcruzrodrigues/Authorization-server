@@ -74,7 +74,30 @@ public class AuthSecurityConfig {
                         .build())
                 .build();
 
-        return new InMemoryRegisteredClientRepository(Arrays.asList(awuserClient));
+        RegisteredClient awblogClient = RegisteredClient
+                .withId("2")
+                .clientId("awblog")
+                .clientSecret(passwordEncoder.encode("123456"))
+                .clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC)
+                .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
+                .authorizationGrantType(AuthorizationGrantType.REFRESH_TOKEN)
+                .redirectUri("http://localhost:3000/authorized")
+                .redirectUri("https://youtube.com")
+                .scope("myuser:read")
+                .scope("myuser:write")
+                .scope("posts:write")
+                .tokenSettings(TokenSettings.builder()
+                        .accessTokenTimeToLive(Duration.ofMinutes(15))
+                        .refreshTokenTimeToLive(Duration.ofDays(1))
+                        .reuseRefreshTokens(false)
+                        .build())
+                .clientSettings(ClientSettings.builder()
+                        .requireAuthorizationConsent(true)
+                        .build())
+                .build();
+
+
+        return new InMemoryRegisteredClientRepository(Arrays.asList(awuserClient, awblogClient));
     }
 
     @Bean
