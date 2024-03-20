@@ -82,7 +82,7 @@ public class AuthSecurityConfig {
                 .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
                 .authorizationGrantType(AuthorizationGrantType.REFRESH_TOKEN)
                 .redirectUri("http://localhost:3000/authorized")
-                .redirectUri("https://youtube.com")
+                .redirectUri("https://oidcdebugger.com/debug")
                 .scope("myuser:read")
                 .scope("myuser:write")
                 .scope("posts:write")
