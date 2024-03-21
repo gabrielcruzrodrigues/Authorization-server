@@ -1,5 +1,7 @@
 package br.com.gabrielrodrigues.authserver.security;
 
+import br.com.gabrielrodrigues.authserver.model.UserEntity;
+import br.com.gabrielrodrigues.authserver.repository.UserRepository;
 import com.nimbusds.jose.jwk.JWKSet;
 import com.nimbusds.jose.jwk.RSAKey;
 import com.nimbusds.jose.jwk.source.ImmutableJWKSet;
@@ -9,16 +11,16 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
-import org.springframework.core.io.ClassPathResource;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
-import org.springframework.security.oauth2.jwt.JwtEncoder;
-import org.springframework.security.oauth2.jwt.NimbusJwtEncoder;
 import org.springframework.security.oauth2.server.authorization.client.InMemoryRegisteredClientRepository;
 import org.springframework.security.oauth2.server.authorization.client.RegisteredClient;
 import org.springframework.security.oauth2.server.authorization.client.RegisteredClientRepository;
@@ -26,16 +28,18 @@ import org.springframework.security.oauth2.server.authorization.config.annotatio
 import org.springframework.security.oauth2.server.authorization.settings.AuthorizationServerSettings;
 import org.springframework.security.oauth2.server.authorization.settings.ClientSettings;
 import org.springframework.security.oauth2.server.authorization.settings.TokenSettings;
+import org.springframework.security.oauth2.server.authorization.token.JwtEncodingContext;
+import org.springframework.security.oauth2.server.authorization.token.OAuth2TokenCustomizer;
 import org.springframework.security.web.SecurityFilterChain;
 
-import java.io.InputStream;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
-import java.security.KeyStore;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
 import java.time.Duration;
 import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.UUID;
 
 @Configuration
@@ -54,6 +58,27 @@ public class AuthSecurityConfig {
         http.authorizeHttpRequests(authorize -> authorize
                 .anyRequest().authenticated());
         return http.formLogin(Customizer.withDefaults()).build();
+    }
+
+    @Bean
+    public OAuth2TokenCustomizer<JwtEncodingContext> jwtEncodingContextOAuth2TokenCustomizer(UserRepository userRepository) {
+        return (context -> {
+            Authentication authentication = context.getPrincipal();
+            if (authentication.getPrincipal() instanceof User) {
+                final User user = (User) authentication.getPrincipal();
+
+                final UserEntity userEntity = userRepository.findByEmail(user.getUsername()).orElseThrow();
+
+                Set<String> authorities = new HashSet<>();
+                for (GrantedAuthority authority: user.getAuthorities()) {
+                    authorities.add(authority.getAuthority().toString());
+                }
+
+                context.getClaims().claim("user_id", userEntity.getId().toString());
+                context.getClaims().claim("user_fullname", userEntity.getName());
+                context.getClaims().claim("authorities", authorities);
+            }
+        });
     }
 
     @Bean
@@ -83,6 +108,7 @@ public class AuthSecurityConfig {
                 .authorizationGrantType(AuthorizationGrantType.REFRESH_TOKEN)
                 .redirectUri("http://localhost:3000/authorized")
                 .redirectUri("https://oidcdebugger.com/debug")
+                .redirectUri("https://oauth.pstmn.io/v1/callback")
                 .scope("myuser:read")
                 .scope("myuser:write")
                 .scope("posts:write")
