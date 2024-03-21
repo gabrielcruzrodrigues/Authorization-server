@@ -13,12 +13,12 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.hibernate.ResourceClosedException;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -30,10 +30,10 @@ public class MyUserController {
 
     @CanReadMyUser
     @GetMapping
-    public UserResponse me(@AuthenticationPrincipal UserDetails userDetails) {
-        final Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+    public UserResponse findMe(@AuthenticationPrincipal Jwt jwt) {
+        String email = jwt.getClaims().get("sub").toString();
 
-        return userEntityRepository.findByEmail(userDetails.getUsername())
+        return userEntityRepository.findByEmail(email)
                 .map(UserResponse::of)
                 .orElseThrow(() -> new ResourceClosedException("Usuário não encontrado!"));
     }
@@ -41,8 +41,9 @@ public class MyUserController {
     @CanEditMyUser
     @PutMapping
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void update(@AuthenticationPrincipal UserDetails userDetails, @RequestBody MyUserUpdateRequest request) {
-        UserEntity user = userEntityRepository.findByEmail(userDetails.getUsername())
+    public void update(@AuthenticationPrincipal Jwt jwt, @RequestBody MyUserUpdateRequest request) {
+        String email = jwt.getClaims().get("sub").toString();
+        UserEntity user = userEntityRepository.findByEmail(email)
                 .orElseThrow(() -> new ResourceNotfoundException("Usuário não encontrado."));
         request.update(user);
         userEntityRepository.save(user);
@@ -51,8 +52,9 @@ public class MyUserController {
     @CanEditMyUser
     @PutMapping("/update-password")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void updatePassword(@AuthenticationPrincipal UserDetails userDetails, @RequestBody MyUserUpdatePasswordRequest request) {
-        UserEntity user = userEntityRepository.findByEmail(userDetails.getUsername())
+    public void updatePassword(@AuthenticationPrincipal Jwt jwt, @RequestBody MyUserUpdatePasswordRequest request) {
+        String email = jwt.getClaims().get("sub").toString();
+        UserEntity user = userEntityRepository.findByEmail(email)
                 .orElseThrow(() -> new ResourceNotfoundException("Usuário não encontrado."));
         user.setPassword(passwordEncoder.encode(request.password()));
         userEntityRepository.save(user);
