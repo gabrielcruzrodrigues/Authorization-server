@@ -5,6 +5,7 @@ import br.com.gabrielrodrigues.post.domain.Post;
 import br.com.gabrielrodrigues.post.exception.ResourceNotFoundException;
 import br.com.gabrielrodrigues.post.repository.PostRepository;
 import br.com.gabrielrodrigues.post.security.SecurityService;
+import br.com.gabrielrodrigues.post.security.accessInterface.CanWritePosts;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -42,8 +43,7 @@ public class PostController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    //TODO Implementar segurança
-    //@CanCreatePost
+    @CanWritePosts
     public PostDetailedResponse create(@RequestBody @Valid PostRequest postRequest) {
         final Post post = new Post(securityService.getUserId(), postRequest.getTitle(), postRequest.getContent());
         postRepository.save(post);
