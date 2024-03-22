@@ -10,3 +10,8 @@ spring:
 
 server:
   port: 8081
+
+aw:
+  user-api:
+    url: 'http://localhost:8080'
+    encoded-credentials: 'YWRtaW5AZW1haWwuY29tOmFkbWlu'
