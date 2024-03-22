@@ -9,6 +9,7 @@ import java.lang.annotation.Target;
 
 @Target({ ElementType.METHOD, ElementType.TYPE })
 @Retention(RetentionPolicy.RUNTIME)
-@PreAuthorize("hasAuthority('SCOPE_users:write')")
+@PreAuthorize("hasRole('ADMIN') or hasAuthority('SCOPE_users:write')")
 public @interface CanWriteUsers {
 }
+

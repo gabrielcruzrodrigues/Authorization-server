@@ -2,6 +2,7 @@ package br.com.gabrielrodrigues.user.security;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.core.GrantedAuthority;
@@ -16,6 +17,7 @@ import java.util.List;
 
 @Configuration
 @EnableWebSecurity
+@EnableMethodSecurity
 public class UserSecurityConfig {
 
     @Bean
@@ -37,7 +39,7 @@ public class UserSecurityConfig {
                 jwt -> {
                     List<String> userRoleAuthorities = jwt.getClaimAsStringList("authorities");
                     if (userRoleAuthorities == null) {
-                        return Collections.emptyList();
+                        userRoleAuthorities =  Collections.emptyList();
                     }
 
                     JwtGrantedAuthoritiesConverter scopesConverter = new JwtGrantedAuthoritiesConverter();
